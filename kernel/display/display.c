@@ -59,3 +59,21 @@ void terminal_write(const char* data, size_t size) {
 void terminal_writestring(const char* data) {
     terminal_write(data, strlen(data));
 }
+
+void terminal_write_dec(uint32_t num) {
+    char buf[11];
+    int i = 10;
+    buf[i--] = '\0';
+    if (num == 0) {
+        buf[i] = '0';
+        terminal_writestring(&buf[i]);
+        return;
+    }
+
+    while (num > 0 && i >= 0) {
+        buf[i--] = '0' + (num % 10);
+        num /= 10;
+    }
+
+    terminal_writestring(&buf[i + 1]);
+}

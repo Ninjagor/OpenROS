@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "display/display.h"
 #include "gdt.h"
+#include "idt.h"
 #include "multiboot.h"
 
 #if defined(__linux__)
@@ -11,7 +12,8 @@
 
 void kernel_main(multiboot_info_t* mb_info) {
     gdt_install();
-
+    idt_install();
+    asm volatile("sti");
 
     if (mb_info->flags & (1 << 6)) {
       multiboot_memory_map_t* mmap = (void*)mb_info->mmap_addr;
@@ -24,4 +26,13 @@ void kernel_main(multiboot_info_t* mb_info) {
     terminal_setcolor(6);
     terminal_writestring("Hello, world!!!\n");
     terminal_writestring("This is my second line :-)\n");
+
+    terminal_writestring("About to have an error...\n");
+
+    // __asm__ volatile (".byte 0x0F, 0x0B");
+
+    volatile int *ptr = (int*)0xFFFFFFFF;
+    int val = *ptr;
+
+    terminal_writestring("This won't be printed if ISR works.\n");
 }
