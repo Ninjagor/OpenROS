@@ -27,12 +27,7 @@ void kernel_main(multiboot_info_t* mb_info) {
     terminal_writestring("Hello, world!!!\n");
     terminal_writestring("This is my second line :-)\n");
 
-    terminal_writestring("About to have an error...\n");
-
-    // __asm__ volatile (".byte 0x0F, 0x0B");
-
-    volatile int *ptr = (int*)0xFFFFFFFF;
-    int val = *ptr;
-
-    terminal_writestring("This won't be printed if ISR works.\n");
+    terminal_writestring("About to have a page fault...\n");
+    asm volatile("int3");
+    terminal_writestring("This should NOT print.\n");
 }
