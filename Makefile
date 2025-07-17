@@ -1,34 +1,34 @@
-CC := x86_64-elf-gcc
-LD := x86_64-elf-ld
+AS = i686-elf-as
+CC = i686-elf-gcc
 
-CFLAGS := -Wall -Wextra -nostdlib -nostartfiles -ffreestanding -m32 -Ikernel/include
-LDFLAGS := -m elf_i386 -T kernel/kernel.ld
+C_SOURCES = $(wildcard kernel/*.c)
+ASM_SOURCES = $(wildcard bootloader/*.s)
 
-NASM := nasm
-NASMFLAGS := -f bin
+OBJ = $(patsubst kernel/%.c, bin/%.o, $(C_SOURCES)) $(patsubst bootloader/%.s, bin/%.o, $(ASM_SOURCES))
 
-BOOT_SRC := bootloader/boot.asm
-BOOT_BIN := bin/bootloader/boot.bin
+all: bin/openROS.iso
 
-KERNEL_SRC := $(shell find kernel -name '*.c')
-KERNEL_OBJ := $(patsubst kernel/%.c, bin/out/%.o, $(KERNEL_SRC))
-KERNEL_BIN := bin/out/kernel.bin
+bin/%.o: kernel/%.c
+	@mkdir -p bin
+	${CC} -c $< -o $@ -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
-.PHONY: all clean
+bin/%.o: bootloader/%.s
+	@mkdir -p bin
+	${AS} $< -o $@
 
-all: $(BOOT_BIN) $(KERNEL_BIN)
+bin/openROS.bin: $(OBJ)
+	${CC} -T linker.ld -o $@ -ffreestanding -O2 -nostdlib $^ -lgcc
 
-$(BOOT_BIN): $(BOOT_SRC)
-	mkdir -p $(dir $@)
-	$(NASM) $(NASMFLAGS) $< -o $@
+check-multiboot: bin/openROS.bin
+	# grub-file --is-x86-multiboot bin/openROS.bin
 
-bin/out/%.o: kernel/%.c
-	mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(KERNEL_BIN): $(KERNEL_OBJ)
-	mkdir -p $(dir $@)
-	$(LD) $(LDFLAGS) -o $@ $(KERNEL_OBJ)
+bin/openROS.iso: check-multiboot
+	rm -rf isodir/
+	mkdir -p isodir/boot/grub
+	cp bin/openROS.bin isodir/boot/openROS.bin
+	cp grub.cfg isodir/boot/grub/grub.cfg
+	docker run --rm --platform linux/amd64 -v "$(PWD):/mnt" -w /mnt my-grub-image grub-mkrescue -o bin/openROS.iso isodir
 
 clean:
-	rm -rf bin
+	rm -rf isodir/
+	rm -rf bin/*.o bin/*.bin bin/*.iso

@@ -4,4 +4,10 @@ bin/*
 ./bin/*
 bin
 
+build/*
+./build/
+./build
+./build/*
+build
+
 .DS_Store
