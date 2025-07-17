@@ -1,0 +1,14 @@
+[
+  {
+    "directory": "/Users/rohit/rohit-project-work/openros",
+    "command": "i686-elf-gcc -Ikernel/include -Ikernel/include/tools -c kernel/kernel.c -o bin/kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra",
+    "file": "kernel/kernel.c",
+    "output": "bin/kernel.o"
+  },
+  {
+    "directory": "/Users/rohit/rohit-project-work/openros",
+    "command": "i686-elf-gcc -Ikernel/include -Ikernel/include/tools -c kernel/tools/str.c -o bin/tools/str.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra",
+    "file": "kernel/tools/str.c",
+    "output": "bin/tools/str.o"
+  }
+]

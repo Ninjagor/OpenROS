@@ -1,19 +1,21 @@
 AS = i686-elf-as
 CC = i686-elf-gcc
 
-C_SOURCES = $(wildcard kernel/*.c)
+C_SOURCES := $(shell find kernel -name '*.c')
 ASM_SOURCES = $(wildcard bootloader/*.s)
 
 OBJ = $(patsubst kernel/%.c, bin/%.o, $(C_SOURCES)) $(patsubst bootloader/%.s, bin/%.o, $(ASM_SOURCES))
 
+INCLUDES = -Ikernel/include -Ikernel/include/tools
+
 all: bin/openROS.iso
 
 bin/%.o: kernel/%.c
-	@mkdir -p bin
-	${CC} -c $< -o $@ -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+	@mkdir -p $(dir $@)
+	${CC} ${INCLUDES} -c $< -o $@ -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 bin/%.o: bootloader/%.s
-	@mkdir -p bin
+	@mkdir -p $(dir $@)
 	${AS} $< -o $@
 
 bin/openROS.bin: $(OBJ)
