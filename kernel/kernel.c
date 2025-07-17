@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "display/display.h"
+#include "gdt.h"
 #include "multiboot.h"
 
 #if defined(__linux__)
@@ -9,6 +10,9 @@
 #endif
 
 void kernel_main(multiboot_info_t* mb_info) {
+    gdt_install();
+
+
     if (mb_info->flags & (1 << 6)) {
       multiboot_memory_map_t* mmap = (void*)mb_info->mmap_addr;
       while ((uint32_t)mmap < mb_info->mmap_addr + mb_info->mmap_length) {
