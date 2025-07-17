@@ -10,4 +10,10 @@ build/*
 ./build/*
 build
 
+isodir/*
+./isodir/
+./isodir
+./isodir/*
+isodir
+
 .DS_Store
